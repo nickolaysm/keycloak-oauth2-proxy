@@ -2,8 +2,8 @@ apiVersion: v1
 kind: Service
 metadata:
   labels:
-    app: nginx
-  name: nginx
+    app: nginx-auth
+  name: nginx-auth
   namespace: default
 spec:
   ports:
@@ -12,5 +12,5 @@ spec:
       protocol: TCP
       targetPort: web
   selector:
-    app: nginx
+    app: nginx-auth
   type: ClusterIP

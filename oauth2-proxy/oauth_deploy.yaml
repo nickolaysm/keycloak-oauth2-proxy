@@ -1,24 +1,32 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: nginx
+  name: nginx-auth
   namespace: default
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: nginx
+      app: nginx-auth
   template:
     metadata:
       labels:
-        app: nginx
+        app: nginx-auth
     spec:
       containers:
-        - name: nginx
+        - name: nginx-auth
           image: nginx
+          imagePullPolicy: IfNotPresent
+          resources:
+            limits:
+              memory: 1024Mi
+              cpu: "1"
+            requests:
+              memory: 100Mi
+              cpu: "0.5"
         - name: oauth2-proxy
-          image: ratanboddu/oauth2-proxy:v7.0.0
-          imagePullPolicy: Always
+          image: mirror.artifactory-jcr.krista.ru/oauth2-proxy/oauth2-proxy:v7.6.0
+          imagePullPolicy: IfNotPresent
           args:
             - --config=/etc/oauth2-proxy.cfg
           ports:
@@ -30,6 +38,13 @@ spec:
               subPath: oauth2-proxy.cfg
             - name: oauth2-templates
               mountPath: /templates
+          resources:
+            limits:
+              memory: 1024Mi
+              cpu: "1"
+            requests:
+              memory: 100Mi
+              cpu: "0.5"          
       volumes:
         - name: oauth2-proxy-config
           configMap:
@@ -37,3 +52,5 @@ spec:
         - name: oauth2-templates
           configMap:
             name: oauth2-templates
+      imagePullSecrets:
+        - name: regcred

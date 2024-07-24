@@ -7,27 +7,31 @@ data:
   oauth2-proxy.cfg: |+
     # Provider config
     provider="keycloak"
-    provider_display_name="RatanB Login"
-    login_url="http://keycloak.ratanboddu.com/auth/realms/master/protocol/openid-connect/auth"
-    redeem_url="http://keycloak.ratanboddu.com/auth/realms/master/protocol/openid-connect/token"
-    validate_url="http://keycloak.ratanboddu.com/auth/realms/master/protocol/openid-connect/userinfo"
+    provider_display_name="OCR Login"
+    login_url="http://keycloak.local.com/realms/master/protocol/openid-connect/auth"
+    redeem_url="http://keycloak:8080/realms/master/protocol/openid-connect/token"
+    validate_url="http://keycloak:8080/realms/master/protocol/openid-connect/userinfo"
+    # login_url="http://keycloak.local.com/realms/master/protocol/openid-connect/auth"
+    # redeem_url="http://keycloak:8080/realms/master/protocol/openid-connect/token"
+    # validate_url="http://keycloak:8080/realms/master/protocol/openid-connect/userinfo"
     ssl_insecure_skip_verify=true
     # Client config
-    client_id="kubernetes"
-    client_secret="e1d3a4c4-25c9-4030-b682-402d3e3abb1b"
+    client_id="name-recognition"
+    client_secret="Isp7fW2uSnJKB1lQBTQ1D9srxqEgnL9C"
     cookie_secret="OQINaROshtE9TcZkNAm5Zs2Pv3xaWytBmc5W7sPX7ws="
     cookie_secure="false"
     cookie_refresh="1m"
     # Upstream config
     http_address="0.0.0.0:3000"
-    upstreams="http://ratanboddu.com/"
+    upstreams="http://keycloak:8080/"
     # Proxy Config
-    keycloak_group="/DemoAdmin"
+    # keycloak_group="/DemoAdmin"
+
     #user_id_claim="preferred_username"
     skip_auth_routes=["/health.*"]
     skip_provider_button="true"
     reverse_proxy="true"
     email_domains=["*"]
-    cookie_domains=[".ratanboddu.com"]
-    whitelist_domains=[".ratanboddu.com:*"]
+    cookie_domains=[".local.com"]
+    whitelist_domains=[".local.com:*","192.168.49.2","keycloak*"]
     custom_templates_dir="/templates"

@@ -17,7 +17,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: keycloak
-  namespace: default
   labels:
     app: keycloak
 spec:
@@ -30,34 +29,123 @@ spec:
       labels:
         app: keycloak
     spec:
-      containers:
+      containers:      
         - name: keycloak
-          image: quay.io/keycloak/keycloak:13.0.0
+          image: mirror.artifactory-jcr.krista.ru/keycloak/keycloak:25.0.0
+          args: ["start-dev"]
           env:
-            - name: KEYCLOAK_USER
+            - name: KEYCLOAK_ADMIN
               value: "admin"
-            - name: KEYCLOAK_PASSWORD
+            - name: KEYCLOAK_ADMIN_PASSWORD
               value: "admin"
-            - name: PROXY_ADDRESS_FORWARDING
-              value: "true"
-            - name: DB_VENDOR
-              value: "mysql"
-            - name: DB_ADDR
-              value: "mysql"
-            - name: DB_PORT
-              value: "3306"
-            - name: DB_DATABASE
-              value: "keycloak"
-            - name: DB_USER
-              value: "root"
-            - name: DB_PASSWORD
-              value: "RatanB@123"
+            - name: KC_PROXY
+              value: "edge"
+            - name: KC_HOSTNAME_STRICT
+              value: "false"
+            - name: KC_HOSTNAME_URL
+              value: "http://192.168.49.2:8080"
+            - name: KC_HOSTNAME_ADMIN_URL
+              value: "http://192.168.49.2:8080"
           ports:
             - name: http
               containerPort: 8080
-            - name: https
-              containerPort: 8443
+          resources:
+            limits:
+              memory: 2048Mi
+              cpu: "1"
+            requests:
+              memory: 256Mi
+              cpu: "0.5"          
           readinessProbe:
             httpGet:
-              path: /auth/realms/master
+              path: /realms/master
               port: 8080
+          imagePullPolicy: IfNotPresent
+      imagePullSecrets:
+        - name: regcred
+
+
+# ====================================
+
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: keycloak
+#   labels:
+#     app: keycloak
+# spec:
+#   ports:
+#     - name: http
+#       port: 8080
+#       targetPort: 8080
+#   selector:
+#     app: keycloak
+#   type: LoadBalancer
+# ---
+# apiVersion: apps/v1
+# kind: Deployment
+# metadata:
+#   name: keycloak
+#   namespace: default
+#   labels:
+#     app: keycloak
+# spec:
+#   replicas: 1
+#   selector:
+#     matchLabels:
+#       app: keycloak
+#   template:
+#     metadata:
+#       labels:
+#         app: keycloak
+#     spec:
+#       containers:
+#         - name: keycloak
+#           # TODO: что-то не так с путём доя имеджа
+#           image: mirror.artifactory-jcr.krista.ru/keycloak/keycloak:24.0.5
+#           imagePullPolicy: IfNotPresent
+#           env:
+#             - name: KEYCLOAK_USER
+#               value: "admin"
+#             - name: KEYCLOAK_PASSWORD
+#               value: "admin"
+#             - name: PROXY_ADDRESS_FORWARDING
+#               value: "true"
+#             - name: DB_VENDOR
+#               value: "m2"
+#             # - name: DB_ADDR
+#             #   value: "mysql"
+#             # - name: DB_PORT
+#             #   value: "3306"
+#             - name: DB_DATABASE
+#               value: "keycloak"
+#             # - name: DB_USER
+#             #   value: "root"
+#             # - name: DB_PASSWORD
+#             #   value: "RatanB@123"
+#           ports:
+#             - name: http
+#               containerPort: 8080
+#             - name: https
+#               containerPort: 8443
+#           readinessProbe:
+#             httpGet:
+#               path: /health/ready
+#               port: 9000
+#             initialDelaySeconds: 20
+#             periodSeconds: 2
+#             successThreshold: 1
+#             timeoutSeconds: 1
+#             failureThreshold: 250       
+#           startupProbe:
+#             httpGet:
+#               path: /health/ready
+#               port: 9000
+#               scheme: HTTP
+#             initialDelaySeconds: 60
+#             periodSeconds: 2
+#             successThreshold: 1
+#             timeoutSeconds: 1
+#             failureThreshold: 250                   
+#       imagePullSecrets:
+#         - name: regcred
